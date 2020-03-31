@@ -16,3 +16,5 @@ services:
         tail -f /dev/null
     volumes:
       - .:/go/src/github.com/guilherme-santos/messageboard
+      # If you have other file just map it here for /etc/messageboard/messages.csv
+      - ./messages.csv:/etc/messageboard/messages.csv

@@ -39,6 +39,7 @@ HEALTHCHECK --start-period=5s --interval=30s --timeout=1s --retries=3 CMD health
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/messageboard /usr/bin/
+COPY --from=builder /src/github.com/guilherme-santos/messageboard/messages.csv /etc/messageboard/
 
 EXPOSE 80
 
