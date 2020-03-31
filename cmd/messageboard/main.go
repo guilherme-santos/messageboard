@@ -50,6 +50,8 @@ func main() {
 		Handler: router,
 	}
 
+	log.Println("running webserver on", httpServer.Addr)
+
 	// Run http server in a goroutine to be able to catch SIGINT
 	errCh := make(chan error)
 	go func() {
