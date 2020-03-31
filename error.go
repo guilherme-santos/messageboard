@@ -1,6 +1,8 @@
 package messageboard
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Error struct {
 	Code    string `json:"code"`
@@ -16,4 +18,9 @@ func NewError(code, msg string) error {
 
 func (e Error) Error() string {
 	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+
+func (e Error) Is(target error) bool {
+	_, ok := target.(*Error)
+	return ok
 }

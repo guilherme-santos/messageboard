@@ -14,6 +14,7 @@ services:
       # Have user/password in the dockerfile is not a good idea
       # Should use secrets
       CREDENTIALS: guilherme:gui123,admin:back-challenge
+      MESSAGES: /etc/messageboard/messages.csv
     networks:
       - back_network
 
