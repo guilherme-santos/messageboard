@@ -23,7 +23,7 @@ COPY . ./
 RUN make go-install
 
 # Final image
-FROM alpine:3.10
+FROM alpine:3.11
 
 LABEL maintainer="Guilherme Silveira <xguiga@gmail.com>"
 
@@ -39,7 +39,7 @@ HEALTHCHECK --start-period=5s --interval=30s --timeout=1s --retries=3 CMD health
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/messageboard /usr/bin/
-COPY --from=builder /src/github.com/guilherme-santos/messageboard/messages.csv /etc/messageboard/
+COPY --from=builder /go/src/github.com/guilherme-santos/messageboard/messages.csv /etc/messageboard/
 
 EXPOSE 80
 

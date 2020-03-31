@@ -1,6 +1,6 @@
 version: "3.7"
 
-# This docker-compose should be renamed for docker-compose.override.yml
+# This docker-compose should be copied to docker-compose.override.yml
 # and use it for development
 services:
   messageboard:
@@ -8,7 +8,7 @@ services:
       target: builder
     command:
       # this command is only to be able to run the container,
-      # kill the process and make run again (inside of the container)
+      # kill the process and `make run` again (inside of the container)
       - sh
       - -c
       - |

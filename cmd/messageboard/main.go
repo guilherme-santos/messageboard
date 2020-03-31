@@ -51,9 +51,10 @@ func main() {
 
 	storage := mongodb.NewMessageBoardStorage(mgoClient)
 
+	log.Println("loading csv file", cfg.MongoDBInitialCSV)
 	err = storage.LoadCSV(cfg.MongoDBInitialCSV)
 	if err != nil {
-		log.Printf("unable to load csv file %s: %v", cfg.MongoDBInitialCSV, err)
+		log.Println("unable to load csv file:", err)
 		return
 	}
 
