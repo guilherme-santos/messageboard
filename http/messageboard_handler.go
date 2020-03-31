@@ -19,7 +19,7 @@ func NewMessageBoardHandler(r chi.Router, svc messageboard.Service, creds map[st
 	h := &MessageBoardHandler{
 		svc: svc,
 	}
-	// Register all endpoints
+	// Register create endpoint without authentication.
 	r.Post("/v1/messages", h.create)
 
 	// Here we're using a basic auth, but we could use a JWT token, which at least

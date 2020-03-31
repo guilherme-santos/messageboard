@@ -67,6 +67,7 @@ func main() {
 	router.Use(middleware.Recoverer)
 
 	// Register message board handler to the router
+	mbhttp.NewPingHandler(router)
 	mbhttp.NewMessageBoardHandler(router, svc, cfg.Credentials)
 
 	httpServer := &http.Server{
@@ -101,6 +102,7 @@ func main() {
 	httpServer.Shutdown(context.Background())
 }
 
+// loadConfig maps envvars to Config.
 func loadConfig(cfg *Config) error {
 	cfg.HTTPAddr = os.Getenv("HTTP_ADDR")
 	if cfg.HTTPAddr == "" {
