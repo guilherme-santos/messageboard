@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  messageboard:
+    image: xguiga/messageboard:$version
+    build:
+      context: .
+      cache_from:
+        - xguiga/messageboard:latest
+      args:
+        GIT_TAG: $GIT_TAG
+        GIT_COMMIT: $GIT_COMMIT
+    networks:
+      - back_network
+
+networks:
+  back_network:

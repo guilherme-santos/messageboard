@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+  messageboard:
+    build:
+      target: builder
+    command:
+      - sh
+      - -c
+      - |
+        messageboard &
+        tail -f /dev/null
+    volumes:
+      - .:/src/github.com/guilherme-santos/messageboard
