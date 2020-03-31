@@ -56,7 +56,7 @@ func (h *MessageBoardHandler) create(w http.ResponseWriter, req *http.Request) {
 	var reqMsg *messageboard.Message
 	err := json.NewDecoder(req.Body).Decode(&reqMsg)
 	if err != nil {
-		responseError(w, err)
+		responseError(w, messageboard.NewError("invalid_json", err.Error()))
 		return
 	}
 
@@ -102,7 +102,7 @@ func (h *MessageBoardHandler) update(w http.ResponseWriter, req *http.Request) {
 	var reqMsg *messageboard.Message
 	err := json.NewDecoder(req.Body).Decode(&reqMsg)
 	if err != nil {
-		responseError(w, err)
+		responseError(w, messageboard.NewError("invalid_json", err.Error()))
 		return
 	}
 
