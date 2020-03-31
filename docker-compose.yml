@@ -10,6 +10,10 @@ services:
       args:
         GIT_TAG: $GIT_TAG
         GIT_COMMIT: $GIT_COMMIT
+    environment:
+      # Have user/password in the dockerfile is not a good idea
+      # Should use secrets
+      CREDENTIALS: guilherme:gui123,admin:back-challenge
     networks:
       - back_network
 

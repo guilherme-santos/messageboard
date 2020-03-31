@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,7 +18,8 @@ import (
 )
 
 type Config struct {
-	HTTPAddr string
+	HTTPAddr    string
+	Credentials map[string]string
 }
 
 var cfg Config
@@ -43,7 +45,7 @@ func main() {
 	router.Use(middleware.Recoverer)
 
 	// Register message board handler to the router
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, cfg.Credentials)
 
 	httpServer := &http.Server{
 		Addr:    cfg.HTTPAddr,
@@ -60,6 +62,7 @@ func main() {
 		errCh <- err
 	}()
 
+	// Check if httpServer.ListenAndServe returned an error
 	select {
 	case err := <-errCh:
 		log.Println("unable to run webserver:", err)
@@ -80,6 +83,31 @@ func loadConfig(cfg *Config) error {
 	cfg.HTTPAddr = os.Getenv("HTTP_ADDR")
 	if cfg.HTTPAddr == "" {
 		cfg.HTTPAddr = "0.0.0.0:80"
+	}
+
+	cfg.Credentials = make(map[string]string)
+
+	creds := strings.Split(os.Getenv("CREDENTIALS"), ",")
+	if len(creds) > 0 && creds[0] != "" {
+		for i, cred := range creds {
+			cred = strings.TrimSpace(cred)
+			if cred == "" {
+				continue
+			}
+
+			usrPasswd := strings.SplitN(cred, ":", 2)
+
+			var user, passwd string
+			if len(usrPasswd) == 2 {
+				user = strings.TrimSpace(usrPasswd[0])
+				passwd = strings.TrimSpace(usrPasswd[1])
+			}
+			if user == "" || passwd == "" {
+				log.Printf("ignoring CREDENTIALS of position %d: %q", i, usrPasswd)
+				continue
+			}
+			cfg.Credentials[usrPasswd[0]] = usrPasswd[1]
+		}
 	}
 	return nil
 }

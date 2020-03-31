@@ -15,14 +15,19 @@ type MessageBoardHandler struct {
 	svc messageboard.Service
 }
 
-func NewMessageBoardHandler(r chi.Router, svc messageboard.Service) *MessageBoardHandler {
+func NewMessageBoardHandler(r chi.Router, svc messageboard.Service, creds map[string]string) *MessageBoardHandler {
 	h := &MessageBoardHandler{
 		svc: svc,
 	}
 	// Register all endpoints
-	r.Get("/v1/messages", h.list)
 	r.Post("/v1/messages", h.create)
-	r.Route("/v1/messages/{id}", func(r chi.Router) {
+
+	// Here we're using a basic auth, but we could use a JWT token, which at least
+	// will validate the token, still the permissions could be inside of each service/endpoint.
+
+	authRouter := r.With(BasicAuth("Back's Message Board", creds))
+	authRouter.Get("/v1/messages", h.list)
+	authRouter.Route("/v1/messages/{id}", func(r chi.Router) {
 		// Add a middleware that will be called in all following endpoints.
 		r = r.With(h.loadMessage)
 		r.Get("/", h.get)
@@ -133,6 +138,8 @@ func responseError(w http.ResponseWriter, err error) {
 	switch mberr.Code {
 	case "not_found":
 		statusCode = http.StatusNotFound
+	case "unauthorized":
+		statusCode = http.StatusUnauthorized
 	default:
 		statusCode = http.StatusInternalServerError
 	}

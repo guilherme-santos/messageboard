@@ -17,6 +17,10 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+var credentials = map[string]string{
+	"test": "testpasswd",
+}
+
 func TestMessageBoardHandler_List(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -33,16 +37,37 @@ func TestMessageBoardHandler_List(t *testing.T) {
 		}, nil)
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "http://localhost/v1/messages?per_page=10&page=2", nil)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, `{
 		"total": 0,
 		"data": []
+	}`, w.Body.String())
+}
+
+func TestMessageBoardHandler_ListUnauthorized(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	svc := mock.NewService(ctrl)
+	router := chi.NewRouter()
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodGet, "http://localhost/v1/messages", nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.JSONEq(t, `{
+		"code": "unauthorized",
+		"message": "user is not authorized to access this resource"
 	}`, w.Body.String())
 }
 
@@ -68,13 +93,15 @@ func TestMessageBoardHandler_Create(t *testing.T) {
 		}, nil)
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(reqMsg)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "http://localhost/v1/messages", &buf)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
@@ -103,10 +130,12 @@ func TestMessageBoardHandler_Get(t *testing.T) {
 		}, nil)
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "http://localhost/v1/messages/my-id", nil)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -129,10 +158,12 @@ func TestMessageBoardHandler_GetNotFound(t *testing.T) {
 		Return(nil, messageboard.NewError("not_found", "message not found"))
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "http://localhost/v1/messages/my-id", nil)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -174,13 +205,15 @@ func TestMessageBoardHandler_Update(t *testing.T) {
 		}, nil)
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	var buf bytes.Buffer
 	json.NewEncoder(&buf).Encode(reqMsg)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPut, "http://localhost/v1/messages/my-id", &buf)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
@@ -203,10 +236,12 @@ func TestMessageBoardHandler_UpdateNotFound(t *testing.T) {
 		Return(nil, messageboard.NewError("not_found", "message not found"))
 
 	router := chi.NewRouter()
-	mbhttp.NewMessageBoardHandler(router, svc)
+	mbhttp.NewMessageBoardHandler(router, svc, credentials)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPut, "http://localhost/v1/messages/my-id", nil)
+	req.SetBasicAuth("test", "testpasswd")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
