@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/sync/errgroup"
 )
 
 // MessageBoardStorage is a mongodb implementation of messageboard.Storage
@@ -42,17 +43,32 @@ func (s *MessageBoardStorage) List(ctx context.Context, opts *messageboard.ListO
 		SetSkip(int64(opts.PerPage * (opts.Page - 1))).
 		SetSort(bson.M{"creation_time": -1})
 
-	cursor, err := s.coll.Find(ctx, bson.D{}, mgoOpts)
-	if err != nil {
-		return nil, err
-	}
-
 	list := new(messageboard.MessageList)
 
-	err = cursor.All(ctx, &list.Data)
-	if err != nil {
+	g, ctx := errgroup.WithContext(ctx)
+	// Goroutine to get list of results.
+	g.Go(func() error {
+		cursor, err := s.coll.Find(ctx, bson.D{}, mgoOpts)
+		if err != nil {
+			return err
+		}
+		return cursor.All(ctx, &list.Data)
+	})
+	// Goroutine to get total of results.
+	g.Go(func() error {
+		total, err := s.coll.CountDocuments(ctx, bson.D{}, options.Count())
+		if err != nil {
+			return err
+		}
+		list.Total = uint(total)
+		return nil
+	})
+
+	// Wait both goroutines and abort in case of error.
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
+
 	if list.Data == nil {
 		list.Data = make([]*messageboard.Message, 0)
 	}
@@ -93,7 +109,7 @@ func (s *MessageBoardStorage) LoadCSV(initialCSV string) error {
 	r := csv.NewReader(f)
 	r.FieldsPerRecord = 5
 
-	// remove current collection to load csv from scratch
+	// Remove current collection to load csv from scratch
 	err = s.coll.Drop(ctx)
 	if err != nil {
 		return err
