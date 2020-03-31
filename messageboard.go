@@ -4,16 +4,33 @@ import (
 	"context"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
 // Message represents a message inside of the system.
 type Message struct {
-	ID           string    `json:"id"`
+	ID           string    `json:"id" bson:"_id"`
 	Name         string    `json:"name"`
 	Email        string    `json:"email"`
 	Text         string    `json:"text"`
-	CreationTime time.Time `json:"creation_time"`
+	CreationTime time.Time `json:"creation_time" bson:"creation_time"`
+}
+
+func (msg *Message) Validate() error {
+	msg.Name = strings.TrimSpace(msg.Name)
+	if msg.Name == "" {
+		return NewError("missing_name", `field "name" is missing`)
+	}
+	msg.Email = strings.TrimSpace(msg.Email)
+	if msg.Email == "" {
+		return NewError("missing_email", `field "email" is missing`)
+	}
+	msg.Text = strings.TrimSpace(msg.Text)
+	if msg.Text == "" {
+		return NewError("missing_text", `field "text" is missing`)
+	}
+	return nil
 }
 
 //go:generate mockgen -package mock -mock_names Service=Service -destination mock/service.go github.com/guilherme-santos/messageboard Service

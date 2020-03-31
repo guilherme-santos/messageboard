@@ -12,14 +12,19 @@ import (
 
 	"github.com/guilherme-santos/messageboard"
 	mbhttp "github.com/guilherme-santos/messageboard/http"
+	"github.com/guilherme-santos/messageboard/mongodb"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Config struct {
-	HTTPAddr    string
-	Credentials map[string]string
+	HTTPAddr          string
+	Credentials       map[string]string
+	MongoDBURL        string
+	MongoDBInitialCSV string
 }
 
 var cfg Config
@@ -34,7 +39,23 @@ func init() {
 }
 
 func main() {
-	var storage messageboard.Storage
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	mgoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoDBURL))
+	if err != nil {
+		log.Println("unable to connect to mongodb:", err)
+		return
+	}
+	defer mgoClient.Disconnect(context.Background())
+
+	storage := mongodb.NewMessageBoardStorage(mgoClient)
+
+	err = storage.LoadCSV(cfg.MongoDBInitialCSV)
+	if err != nil {
+		log.Printf("unable to load csv file %s: %v", cfg.MongoDBInitialCSV, err)
+		return
+	}
 
 	svc := messageboard.NewService(storage)
 
@@ -109,5 +130,8 @@ func loadConfig(cfg *Config) error {
 			cfg.Credentials[usrPasswd[0]] = usrPasswd[1]
 		}
 	}
+
+	cfg.MongoDBURL = os.Getenv("MONGODB_URL")
+	cfg.MongoDBInitialCSV = os.Getenv("MONGODB_INITIAL_CSV")
 	return nil
 }

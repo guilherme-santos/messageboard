@@ -18,7 +18,12 @@ func NewService(storage Storage) Service {
 }
 
 func (s *service) Create(ctx context.Context, msg *Message) (*Message, error) {
-	err := s.storage.Create(ctx, msg)
+	err := msg.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.storage.Create(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +39,12 @@ func (s *service) Get(ctx context.Context, id string) (*Message, error) {
 }
 
 func (s *service) Update(ctx context.Context, msg *Message) (*Message, error) {
-	err := s.storage.Update(ctx, msg)
+	err := msg.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.storage.Update(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

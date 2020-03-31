@@ -14,9 +14,27 @@ services:
       # Have user/password in the dockerfile is not a good idea
       # Should use secrets
       CREDENTIALS: guilherme:gui123,admin:back-challenge
-      MESSAGES: /etc/messageboard/messages.csv
+      MONGODB_URL: mongodb://mongodb
+      MONGODB_INITIAL_CSV: /etc/messageboard/messages.csv
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
     networks:
       - back_network
+
+  mongodb:
+    image: mongo:3.6
+    command: --bind_ip_all
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    networks:
+      - back_network
+
+volumes:
+  mongodb-data:
+  mongodb-config:
 
 networks:
   back_network:
