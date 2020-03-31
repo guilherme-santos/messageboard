@@ -1,14 +1,18 @@
 version: "3.7"
 
+# This docker-compose should be renamed for docker-compose.override.yml
+# and use it for development
 services:
   messageboard:
     build:
       target: builder
     command:
+      # this command is only to be able to run the container,
+      # kill the process and make run again (inside of the container)
       - sh
       - -c
       - |
         messageboard &
         tail -f /dev/null
     volumes:
-      - .:/src/github.com/guilherme-santos/messageboard
+      - .:/go/src/github.com/guilherme-santos/messageboard
