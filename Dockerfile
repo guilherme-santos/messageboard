@@ -30,6 +30,7 @@ LABEL maintainer="Guilherme Silveira <xguiga@gmail.com>"
 # set up nsswitch.conf for Go's "netgo" implementation
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
+# Healthcheck binary written by me, in go, really simple, just to check if the service is up and running.
 ENV HEALTHCHECK_VERSION 1.0.0
 ENV HEALTHCHECK_URL https://github.com/gioxtech/healthcheck/releases/download/v${HEALTHCHECK_VERSION}/healthcheck-${HEALTHCHECK_VERSION}
 RUN wget ${HEALTHCHECK_URL} -O /usr/bin/healthcheck && \
