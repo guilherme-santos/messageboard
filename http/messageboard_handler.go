@@ -7,8 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi"
 	"github.com/guilherme-santos/messageboard"
+
+	"github.com/go-chi/chi"
 )
 
 type MessageBoardHandler struct {

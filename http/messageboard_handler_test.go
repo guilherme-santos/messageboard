@@ -11,10 +11,10 @@ import (
 	"github.com/guilherme-santos/messageboard"
 	mbhttp "github.com/guilherme-santos/messageboard/http"
 	"github.com/guilherme-santos/messageboard/mock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-chi/chi"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 var credentials = map[string]string{

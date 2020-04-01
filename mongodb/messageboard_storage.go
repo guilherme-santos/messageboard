@@ -8,8 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/guilherme-santos/messageboard"
+
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
