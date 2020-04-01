@@ -1,4 +1,4 @@
-https://travis-ci.com/guilherme-santos/messageboard.svg?branch=master
+[![Build Status](https://travis-ci.com/guilherme-santos/messageboard.svg?branch=master)](https://travis-ci.com/guilherme-santos/messageboard)
 
 # Back's Message Board
 
