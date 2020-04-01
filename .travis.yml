@@ -1,0 +1,13 @@
+language: go
+go:
+  - 1.14.x
+
+before_script:
+  - go get -u golang.org/x/tools/cmd/goimports
+  - go get -u golang.org/x/lint/golint
+
+script:
+  - goimports -d -e -l $(find . -type f -name '*.go' -not -path "./.gopath/*" -not -path "./mock/*")
+  - go vet ./...
+  - golint ./...
+  - make test flag=-v
