@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/guilherme-santos/messageboard.svg?branch=master)](https://travis-ci.com/guilherme-santos/messageboard)
-
 # Back's Message Board
+
+[![Build Status](https://travis-ci.com/guilherme-santos/messageboard.svg?branch=master)](https://travis-ci.com/guilherme-santos/messageboard)
 
 This is a RESTFul API which allow unauthenticated users add new messages and authenticated users list, update and get details about a specific one.
 
